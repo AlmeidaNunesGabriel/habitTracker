@@ -4,6 +4,7 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import Home from "./src/screens/Home/index.js";
 import AddHabitScreen from './src/screens/AddHabitScreen';
 import HabitListScreen from './src/screens/Lista/index.js';
+import Statistics from './src/screens/Estatitisticas/index.js'
 
 
 const Drawer = createDrawerNavigator();
@@ -14,7 +15,7 @@ export default function App() {
         <Drawer.Screen name="Início" component={Home} />
         <Drawer.Screen name="Meus Hábitos" component={HabitListScreen} />
         <Drawer.Screen name="Novo Hábito" component={AddHabitScreen} />
-      
+        <Drawer.Screen name="Estatísticas" component={Statistics} />
         
       </Drawer.Navigator>
     </NavigationContainer>
