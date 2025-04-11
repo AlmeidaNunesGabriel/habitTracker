@@ -3,7 +3,6 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import MyButton from '../../components/Button';
 import styles from './styles';
-import { ScrollView } from 'react-native-gesture-handler';
 
 export default function Home({ navigation }) {
   return (

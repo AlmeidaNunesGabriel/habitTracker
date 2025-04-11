@@ -1,11 +1,12 @@
-// pages/HabitListScreen.js
-import React, { useState } from 'react';
-import { View, Text, FlatList} from 'react-native';
+import React, { useState, useContext } from 'react';
+import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import MyButton from '../../components/Button';
-import styles from './styles';
-
+import getStyles from './styles';
+import { ThemeContext } from '../../context/ThemeContext';
 
 export default function HabitListScreen({ navigation }) {
+  const { theme } = useContext(ThemeContext);
+  const styles = getStyles(theme); // ✅ agora sim!
 
   const [habits, setHabits] = useState([
     { id: '1', name: 'Meditar', completed: false },
@@ -14,12 +15,14 @@ export default function HabitListScreen({ navigation }) {
   ]);
 
   const renderItem = ({ item }) => (
-    <View style={styles.card}>
-      <Text style={styles.cardTitle}>{item.name}</Text>
-      <Text style={styles.cardStatus}>
-        {item.completed ? 'Completado' : 'Pendente'}
-      </Text>
-    </View>
+    <TouchableOpacity onPress={() => navigation.navigate('Detalhes dos Hábitos', { habit: item })}>
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>{item.name}</Text>
+        <Text style={styles.cardStatus}>
+          {item.completed ? 'Completado' : 'Pendente'}
+        </Text>
+      </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -31,12 +34,7 @@ export default function HabitListScreen({ navigation }) {
         renderItem={renderItem}
         contentContainerStyle={styles.listContent}
       />
-
-      {/* Botão para navegar para a tela de adicionar novo hábito */}
-      <MyButton
-        title="Adicionar Novo Hábito"
-        onPress={() => navigation.navigate('Novo Hábito')}
-      />
+      <MyButton title="Adicionar Novo Hábito" onPress={() => navigation.navigate('Novo Hábito')} />
     </View>
   );
 }
