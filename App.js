@@ -9,10 +9,12 @@ import Statistics from './src/screens/Estatitisticas/index.js';
 import HabitDetails from './src/screens/HabitDetails/index.js';
 import Profile from './src/screens/profile/index.js'; 
 import Agenda  from './src/screens/Agenda/index.js';
+import { HabitsProvider } from './src/context/HabitsContext';
 const Drawer = createDrawerNavigator();
 
 export default function App() {
   return (
+    <HabitsProvider>
     <ThemeProvider>
       <NavigationContainer>
         <Drawer.Navigator initialRouteName="Início">
@@ -26,6 +28,7 @@ export default function App() {
         </Drawer.Navigator>
       </NavigationContainer>
     </ThemeProvider>
+    </HabitsProvider>
   );
 }
 

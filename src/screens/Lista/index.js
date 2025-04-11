@@ -1,18 +1,24 @@
-import React, { useState, useContext } from 'react';
+import React, {useCallback} from 'react';
+import { useContext } from 'react';
 import { View, Text, FlatList, TouchableOpacity } from 'react-native';
-import MyButton from '../../components/Button';
 import getStyles from './styles';
+import MyButton from '../../components/Button';
+import { useHabits} from '../../context/HabitsContext';
+import { useFocusEffect } from '@react-navigation/native';
 import { ThemeContext } from '../../context/ThemeContext';
 
-export default function HabitListScreen({ navigation }) {
-  const { theme } = useContext(ThemeContext);
-  const styles = getStyles(theme); // ✅ agora sim!
 
-  const [habits, setHabits] = useState([
-    { id: '1', name: 'Meditar', completed: false },
-    { id: '2', name: 'Exercitar', completed: true },
-    { id: '3', name: 'Ler um Livro', completed: false },
-  ]);
+export default function HabitListScreen({ navigation }) {
+    const { habits } = useHabits();
+    const { theme } = useContext(ThemeContext);
+    const styles = getStyles(theme);
+
+    useFocusEffect(
+      useCallback(() => {
+        // Só serve para garantir re-render.
+        // Não precisa fazer nada aqui, só força a atualização
+      }, [habits])
+    );
 
   const renderItem = ({ item }) => (
     <TouchableOpacity onPress={() => navigation.navigate('Detalhes dos Hábitos', { habit: item })}>

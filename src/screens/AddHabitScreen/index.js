@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput} from 'react-native';
-import styles from './styles'
+import { View, Text, TextInput } from 'react-native';
+import styles from './styles';
 import MyButton from '../../components/Button';
+import { useHabits } from '../../context/HabitsContext';
+
 const AddHabitScreen = ({ navigation }) => {
   const [nome, setNome] = useState('');
   const [descricao, setDescricao] = useState('');
+  const { addHabit } = useHabits();
 
   const handleSave = () => {
-    console.log('Hábito salvo:', { nome, descricao });
+    if (!nome.trim()) return;
+    addHabit(nome, descricao);
     navigation.goBack();
   };
 
@@ -32,6 +36,5 @@ const AddHabitScreen = ({ navigation }) => {
     </View>
   );
 };
-
 
 export default AddHabitScreen;
