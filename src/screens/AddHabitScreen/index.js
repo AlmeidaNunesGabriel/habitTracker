@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput} from 'react-native';
 import styles from './styles'
+import MyButton from '../../components/Button';
 const AddHabitScreen = ({ navigation }) => {
   const [nome, setNome] = useState('');
   const [descricao, setDescricao] = useState('');
 
   const handleSave = () => {
-    // Aqui você pode implementar a lógica para salvar o novo hábito.
-    // Por exemplo, atualizar um estado global ou armazenar localmente.
     console.log('Hábito salvo:', { nome, descricao });
     navigation.goBack();
   };
@@ -29,7 +28,7 @@ const AddHabitScreen = ({ navigation }) => {
         placeholder="Ex: Meditação diária por 10 minutos"
         multiline
       />
-      <Button title="Salvar Hábito" onPress={handleSave} />
+      <MyButton title="Salvar Hábito" onPress={handleSave} />
     </View>
   );
 };

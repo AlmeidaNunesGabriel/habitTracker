@@ -1,28 +1,22 @@
-// App.js
-import React from 'react';
-import 'react-native-gesture-handler';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import HomeScreen from './pages/HomeScreen';
-import HabitListScreen from './pages/HabitListScreen';
-import HabitDetailScreen from './pages/HabitDetailScreen';
-import AddHabitScreen from './pages/AddHabitScreen';
-import StatisticsScreen from './pages/StatisticsScreen';
-import ProfileScreen from './pages/ProfileScreen';
+import React, { useEffect } from 'react';
+import { NavigationContainer } from '@react-navigation/native'; 
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import Home from "./src/screens/Home/index.js";
+import AddHabitScreen from './src/screens/AddHabitScreen';
+import HabitListScreen from './src/screens/Lista/index.js';
 
-const Stack = createNativeStackNavigator();
 
+const Drawer = createDrawerNavigator();
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Habits" component={HabitListScreen} />
-        <Stack.Screen name="HabitDetails" component={HabitDetailScreen} />
-        <Stack.Screen name="AddHabit" component={AddHabitScreen} />
-        <Stack.Screen name="Statistics" component={StatisticsScreen} />
-        <Stack.Screen name="Profile" component={ProfileScreen} />
-      </Stack.Navigator>
+      <Drawer.Navigator initialRouteName="Início">
+        <Drawer.Screen name="Início" component={Home} />
+        <Drawer.Screen name="Meus Hábitos" component={HabitListScreen} />
+        <Drawer.Screen name="Novo Hábito" component={AddHabitScreen} />
+      
+        
+      </Drawer.Navigator>
     </NavigationContainer>
   );
 }
