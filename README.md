@@ -18,7 +18,7 @@ A simple and evolving React-based habit tracking app. The goal is to help users 
 
 ## 📌 Status
 
-🚧 In progress — this project is currently under development. New features and improvements are coming soon!
+🚧 In progress — this project is currently under development. The features described are coming soon!
 
 ## 📷 Screenshots
 
