@@ -11,9 +11,7 @@ A simple and evolving React-based habit tracking app. The goal is to help users 
 - Context API for global state management
 
 ## 🛠️ Technologies Used
-
-- React (with Hooks)
-- React Native (for mobile UI, if applicable)
+- React Native 
 - React Navigation
 - Context API
 - JavaScript
