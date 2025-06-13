@@ -85,7 +85,7 @@ export default function HabitDetails({ route, navigation }) {
         </Text>
         <MyButton 
           title="Adicionar Hábito" 
-          onPress={() => navigation.navigate('Novo Hábito')} 
+          onPress={() => navigation.navigate('Adicionar')} 
         />
       </View>
     );

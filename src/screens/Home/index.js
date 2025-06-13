@@ -139,12 +139,12 @@ export default function Home({ navigation }) {
       <View style={styles.buttonContainer}>
         <MyButton 
           title="Ver Meus Hábitos" 
-          onPress={() => navigation.navigate('Meus Hábitos')}
+          onPress={() => navigation.navigate('Hábitos')}
           color="#6200ee"
         />
         <MyButton 
           title="Adicionar Novo Hábito" 
-          onPress={() => navigation.navigate('Novo Hábito')}
+          onPress={() => navigation.navigate('Adicionar')}
           color="#4CAF50"
         />
         <MyButton 

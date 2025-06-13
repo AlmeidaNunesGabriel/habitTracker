@@ -59,7 +59,7 @@ export default function HabitListScreen({ navigation }) {
   const renderItem = ({ item }) => (
     <View style={styles.card}>
       <TouchableOpacity 
-        onPress={() => navigation.navigate('Detalhes dos Hábitos', { habit: item })}
+        onPress={() => navigation.navigate('Detalhes', { habit: item })}
         style={styles.cardContent}
       >
         <Text style={styles.cardTitle}>{item.name}</Text>
@@ -142,7 +142,7 @@ export default function HabitListScreen({ navigation }) {
       
       <MyButton 
         title="Adicionar Novo Hábito" 
-        onPress={() => navigation.navigate('Novo Hábito')} 
+        onPress={() => navigation.navigate('Adicionar')} 
       />
     </View>
   );
