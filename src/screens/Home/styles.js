@@ -106,6 +106,8 @@ const styles = StyleSheet.create({
   buttonContainer: {
     gap: 12,
     marginTop: 16,
+    alignItems: 'center', // Centraliza os botões horizontalmente
+    paddingHorizontal: 20, // Adiciona um pouco de padding lateral
   },
 });
 

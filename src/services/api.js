@@ -1,258 +1,284 @@
-const API_BASE_URL = 'https://jsonplaceholder.typicode.com';
+// CONFIGURAÇÃO JSONBIN.IO
+const JSONBIN_CONFIG = {
+  // SUBSTITUA PELOS SEUS DADOS:
+  API_KEY: '$2a$10$Ank97z3FRd0EvxdVMMykNeNe3wcvSZANQCFnCV0s9KX66MjTxNIDa', // Sua Master Key da JSONBin.io
+  BIN_ID: '684c3f258561e97a5023ad64', // ID do seu bin criado
+  BASE_URL: 'https://api.jsonbin.io/v3'
+};
 
 class ApiService {
   constructor() {
-    // Simulamos um storage local para persistir dados entre sessões
-    this.localHabits = [];
-    this.nextId = 1;
-    this.hasInitialized = false; // Flag para controlar inicialização
-    this.useDefaultHabits = true; // Flag para controlar se deve usar hábitos padrão
+    this.isOnline = true;
+    this.localCache = [];
   }
 
-  // Simula buscar dados da API e mescla com dados locais
+  // Headers para requisições JSONBin.io
+  getHeaders() {
+    return {
+      'Content-Type': 'application/json',
+      'X-Master-Key': JSONBIN_CONFIG.API_KEY,
+      'X-Bin-Meta': 'false' // Remove metadados da resposta
+    };
+  }
+
+  // Buscar todos os hábitos
   async getTasks() {
     try {
-      // Se já inicializou, sempre retorna apenas os hábitos locais atuais
-      if (this.hasInitialized) {
-        console.log('Retornando hábitos locais existentes:', this.localHabits.length);
-        return [...this.localHabits];
+      console.log('🔄 Buscando hábitos da JSONBin.io...');
+      
+      const response = await fetch(`${JSONBIN_CONFIG.BASE_URL}/b/${JSONBIN_CONFIG.BIN_ID}/latest`, {
+        method: 'GET',
+        headers: this.getHeaders()
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erro HTTP: ${response.status}`);
       }
 
-      // Primeira inicialização - verifica se já tem hábitos locais
-      if (this.localHabits.length === 0) {
-        console.log('Primeira inicialização - carregando hábitos iniciais');
-        
-        try {
-          const response = await fetch(`${API_BASE_URL}/posts?_limit=5`);
-          if (response.ok) {
-            const apiData = await response.json();
-            
-            // Converte posts em hábitos fictícios apenas na primeira vez
-            const apiHabits = apiData.map(post => ({
-              id: `api_${post.id}`,
-              title: this.generateHabitName(post.id),
-              description: post.title.substring(0, 50) + '...',
-              completed: Math.random() > 0.5,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-              source: 'api'
-            }));
+      const data = await response.json();
+      
+      // JSONBin.io retorna os dados diretamente
+      const habits = Array.isArray(data) ? data : data.habits || [];
+      
+      this.localCache = habits;
+      this.isOnline = true;
+      
+      console.log('✅ Hábitos carregados da API:', habits.length);
+      return habits;
 
-            // Define os hábitos iniciais (não adiciona, substitui)
-            this.localHabits = apiHabits;
-            console.log('Hábitos iniciais carregados da API:', apiHabits.length);
-          }
-        } catch (apiError) {
-          console.log('API indisponível, usando hábitos padrão');
-          
-          // Fallback: hábitos padrão apenas na primeira inicialização
-          const defaultHabits = [
-            {
-              id: 'default_1',
-              title: 'Meditar',
-              description: 'Praticar meditação diária por 10 minutos',
-              completed: false,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-              source: 'default'
-            },
-            {
-              id: 'default_2',
-              title: 'Exercitar-se',
-              description: 'Fazer exercícios físicos por 30 minutos',
-              completed: true,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-              source: 'default'
-            },
-            {
-              id: 'default_3',
-              title: 'Ler',
-              description: 'Ler pelo menos 20 páginas de um livro',
-              completed: false,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-              source: 'default'
-            }
-          ];
-          
-          // Define os hábitos padrão (não adiciona, substitui)
-          this.localHabits = defaultHabits;
-        }
-      }
-      
-      this.hasInitialized = true;
-      console.log('Retornando todos os hábitos:', this.localHabits.length);
-      return [...this.localHabits];
-      
     } catch (error) {
-      console.error('Erro ao buscar hábitos:', error);
-      return [...this.localHabits];
+      console.error('❌ Erro ao buscar hábitos:', error);
+      this.isOnline = false;
+      
+      // Retorna cache local se API falhar
+      if (this.localCache.length > 0) {
+        console.log('📱 Usando cache local:', this.localCache.length);
+        return this.localCache;
+      }
+      
+      // Fallback: dados iniciais
+      const defaultHabits = [
+        {
+          id: '1',
+          name: 'Meditar',
+          description: 'Praticar meditação diária por 10 minutos',
+          completed: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: '2',
+          name: 'Exercitar-se',
+          description: 'Fazer exercícios físicos por 30 minutos',
+          completed: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: '3',
+          name: 'Ler',
+          description: 'Ler pelo menos 20 páginas de um livro',
+          completed: false,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      ];
+      
+      this.localCache = defaultHabits;
+      return defaultHabits;
     }
   }
 
-  // Gera nomes de hábitos baseados no ID
-  generateHabitName(id) {
-    const habitNames = [
-      'Beber água', 'Meditar', 'Exercitar-se', 'Ler', 'Estudar',
-      'Praticar gratidão', 'Dormir cedo', 'Caminhar', 'Escrever',
-      'Tocar instrumento', 'Praticar idioma', 'Fazer yoga'
-    ];
-    return habitNames[id % habitNames.length];
+  // Salvar todos os hábitos (sobrescreve o bin)
+  async saveAllTasks(habits) {
+    try {
+      console.log('💾 Salvando hábitos na JSONBin.io...');
+      
+      const response = await fetch(`${JSONBIN_CONFIG.BASE_URL}/b/${JSONBIN_CONFIG.BIN_ID}`, {
+        method: 'PUT',
+        headers: this.getHeaders(),
+        body: JSON.stringify(habits)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erro HTTP: ${response.status}`);
+      }
+
+      const result = await response.json();
+      this.localCache = habits;
+      this.isOnline = true;
+      
+      console.log('✅ Hábitos salvos na API com sucesso');
+      return result;
+
+    } catch (error) {
+      console.error('❌ Erro ao salvar hábitos:', error);
+      this.isOnline = false;
+      throw error;
+    }
   }
 
-  // Simula criação de hábito
-  async createTask(task) {
+  // Criar novo hábito
+  async createTask(taskData) {
     try {
-      // Cria hábito local
+      // Busca hábitos atuais
+      const currentHabits = await this.getTasks();
+      
+      // Gera novo ID
+      const newId = Date.now().toString();
+      
+      // Cria novo hábito
       const newHabit = {
-        id: `local_${this.nextId++}`,
-        title: task.title,
-        description: task.description || '',
-        completed: task.completed || false,
+        id: newId,
+        name: taskData.title || taskData.name,
+        description: taskData.description || '',
+        completed: taskData.completed || false,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        source: 'local'
+        updatedAt: new Date().toISOString()
       };
 
-      // Adiciona aos hábitos locais
-      this.localHabits.push(newHabit);
-      this.useDefaultHabits = false; // Usuário está criando seus próprios hábitos
+      // Adiciona à lista
+      const updatedHabits = [...currentHabits, newHabit];
       
-      console.log('Hábito criado:', newHabit);
+      // Salva na API
+      await this.saveAllTasks(updatedHabits);
+      
+      console.log('✅ Hábito criado:', newHabit.name);
       return newHabit;
-      
+
     } catch (error) {
-      console.error('Erro ao criar hábito:', error);
+      console.error('❌ Erro ao criar hábito:', error);
       throw error;
     }
   }
 
-  // Simula atualização de hábito
+  // Atualizar hábito existente
   async updateTask(id, updates) {
     try {
-      // Encontra e atualiza o hábito nos dados locais
-      const habitIndex = this.localHabits.findIndex(h => h.id === id);
-      if (habitIndex !== -1) {
-        this.localHabits[habitIndex] = {
-          ...this.localHabits[habitIndex],
-          title: updates.title || this.localHabits[habitIndex].title,
-          description: updates.description || this.localHabits[habitIndex].description,
-          completed: updates.completed !== undefined ? updates.completed : this.localHabits[habitIndex].completed,
-          updatedAt: new Date().toISOString(),
-        };
-        
-        console.log('Hábito atualizado:', this.localHabits[habitIndex]);
-        return this.localHabits[habitIndex];
+      // Busca hábitos atuais
+      const currentHabits = await this.getTasks();
+      
+      // Encontra o hábito
+      const habitIndex = currentHabits.findIndex(h => h.id === id);
+      if (habitIndex === -1) {
+        throw new Error('Hábito não encontrado');
       }
 
-      throw new Error('Hábito não encontrado');
+      // Atualiza o hábito
+      const updatedHabit = {
+        ...currentHabits[habitIndex],
+        name: updates.name || updates.title || currentHabits[habitIndex].name,
+        description: updates.description || currentHabits[habitIndex].description,
+        completed: updates.completed !== undefined ? updates.completed : currentHabits[habitIndex].completed,
+        updatedAt: new Date().toISOString()
+      };
+
+      // Substitui na lista
+      const updatedHabits = [...currentHabits];
+      updatedHabits[habitIndex] = updatedHabit;
       
+      // Salva na API
+      await this.saveAllTasks(updatedHabits);
+      
+      console.log('✅ Hábito atualizado:', updatedHabit.name);
+      return updatedHabit;
+
     } catch (error) {
-      console.error('Erro ao atualizar hábito:', error);
+      console.error('❌ Erro ao atualizar hábito:', error);
       throw error;
     }
   }
 
-  // Simula deleção de hábito
+  // Deletar hábito
   async deleteTask(id) {
     try {
-      const initialLength = this.localHabits.length;
+      // Busca hábitos atuais
+      const currentHabits = await this.getTasks();
       
-      // Remove dos hábitos locais
-      this.localHabits = this.localHabits.filter(h => h.id !== id);
+      // Remove o hábito
+      const updatedHabits = currentHabits.filter(h => h.id !== id);
       
-      const wasDeleted = this.localHabits.length < initialLength;
-      
-      if (wasDeleted) {
-        console.log('Hábito deletado:', id, 'Restam:', this.localHabits.length);
-        
-        // Se não há mais hábitos, permite que fique vazio
-        if (this.localHabits.length === 0) {
-          this.useDefaultHabits = false;
-          console.log('Todos os hábitos foram deletados - lista vazia permitida');
-        }
-        
-        return { success: true };
-      } else {
-        throw new Error('Hábito não encontrado para deletar');
+      if (updatedHabits.length === currentHabits.length) {
+        throw new Error('Hábito não encontrado');
       }
       
+      // Salva na API
+      await this.saveAllTasks(updatedHabits);
+      
+      console.log('✅ Hábito deletado:', id);
+      return { success: true };
+
     } catch (error) {
-      console.error('Erro ao deletar hábito:', error);
+      console.error('❌ Erro ao deletar hábito:', error);
       throw error;
     }
   }
 
-  // Método para testar conectividade
-  async testConnection() {
-    try {
-      const response = await fetch(`${API_BASE_URL}/posts/1`);
-      return response.ok;
-    } catch (error) {
-      console.error('Teste de conexão falhou:', error);
-      return false;
-    }
-  }
-
-  // Método para obter estatísticas BASEADAS NOS DADOS REAIS
+  // Obter estatísticas
   async getStatistics() {
     try {
-      const habits = this.localHabits; // Usa dados locais reais
+      const habits = await this.getTasks();
       const total = habits.length;
       const completed = habits.filter(h => h.completed).length;
       const pending = total - completed;
       const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
 
-      // Calcula estatísticas baseadas nos dados reais
-      const today = new Date();
-      const oneWeekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+      // Calcula hábitos da semana
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
       
       const habitsThisWeek = habits.filter(habit => {
         const habitDate = new Date(habit.updatedAt || habit.createdAt);
         return habitDate >= oneWeekAgo && habit.completed;
       }).length;
 
-      // Calcula streak baseado nos hábitos completados
-      let streak = 0;
-      const completedHabits = habits.filter(h => h.completed);
-      if (completedHabits.length > 0) {
-        // Simula um streak baseado na proporção de hábitos completados
-        streak = Math.floor(completionRate / 10); // 1 dia de streak para cada 10% de conclusão
-      }
+      // Calcula streak simples
+      const streak = completed > 0 ? Math.floor(completionRate / 20) || 1 : 0;
 
-      const stats = {
+      return {
         total,
         completed,
         pending,
         completionRate,
         habitsThisWeek,
-        streak: Math.max(streak, completedHabits.length > 0 ? 1 : 0)
+        streak
       };
 
-      console.log('Estatísticas calculadas:', stats);
-      return stats;
-      
     } catch (error) {
-      console.error('Erro ao obter estatísticas:', error);
+      console.error('❌ Erro ao obter estatísticas:', error);
       return {
         total: 0,
         completed: 0,
         pending: 0,
         completionRate: 0,
         habitsThisWeek: 0,
-        streak: 0,
+        streak: 0
       };
     }
   }
 
-  // Método para resetar todos os dados (útil para testes)
-  resetData() {
-    this.localHabits = [];
-    this.hasInitialized = false;
-    this.useDefaultHabits = true;
-    this.nextId = 1;
-    console.log('Dados do ApiService resetados');
+  // Testar conexão
+  async testConnection() {
+    try {
+      const response = await fetch(`${JSONBIN_CONFIG.BASE_URL}/b/${JSONBIN_CONFIG.BIN_ID}/latest`, {
+        method: 'HEAD',
+        headers: this.getHeaders()
+      });
+      
+      this.isOnline = response.ok;
+      return response.ok;
+    } catch (error) {
+      this.isOnline = false;
+      return false;
+    }
+  }
+
+  // Status da conexão
+  getConnectionStatus() {
+    return {
+      isOnline: this.isOnline,
+      hasCache: this.localCache.length > 0
+    };
   }
 }
 
