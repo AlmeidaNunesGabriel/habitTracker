@@ -34,4 +34,4 @@ git clone https://github.com/AlmeidaNunesGabriel/habitTracker
 npm install
 
 # Run the project
-npm start
+npx expo start
